@@ -1,8 +1,5 @@
-FROM openjdk:11
+FROM openjdk:11.0.12-jre-slim
 WORKDIR /app
-COPY gradle/ gradle
-COPY build.gradle settings.gradle gradlew ./
-COPY src ./src
+COPY /app/build/libs/spring-reactive-demo-*.jar /spring-reactive-demo.jar
 EXPOSE 80
-RUN ./gradlew build
-CMD ["java", "-jar", "/app/build/libs/spring-reactive-demo-0.0.1.jar", "--spring.profiles.active=dev"]
+CMD ["java", "-jar", "/spring-reactive-demo.jar", "--spring.profiles.active=dev"]

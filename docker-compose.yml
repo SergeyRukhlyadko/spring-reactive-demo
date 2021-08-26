@@ -1,6 +1,5 @@
 services:
   web:
-    build: .
     ports:
       - 80:80
     working_dir: /app
