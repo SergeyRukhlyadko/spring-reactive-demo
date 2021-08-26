@@ -10,6 +10,8 @@ class CreatePropertiesTask extends DefaultTask {
     @Input
     String path = ""
 
+    @Input fileName = ""
+
     @TaskAction
     def createProperties() {
         if (path.isBlank()) {
@@ -17,6 +19,7 @@ class CreatePropertiesTask extends DefaultTask {
         }
 
         File file = new File(path)
+        file.getParentFile().mkdirs()
         file.createNewFile()
         println "File exists: " + file.exists()
 
