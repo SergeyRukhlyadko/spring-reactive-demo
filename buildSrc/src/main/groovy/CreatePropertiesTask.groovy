@@ -16,7 +16,11 @@ class CreatePropertiesTask extends DefaultTask {
             throw new IllegalStateException("The path property is not define.")
         }
 
-        new File(path).withWriter { w ->
+        File file = new File(path)
+        file.createNewFile()
+        println "File exists: " + file.exists()
+
+        file.withWriter { w ->
             Map<String, String> property = new HashMap<>()
             property.put "version", project.version.toString()
             ObjectMapper om = new ObjectMapper(new YAMLFactory())
