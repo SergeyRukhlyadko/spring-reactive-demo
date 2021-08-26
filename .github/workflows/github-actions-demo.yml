@@ -6,6 +6,11 @@ on:
   pull_request:
     branches: [ $default-branch ]
   workflow_dispatch:
+    inputs:
+        build-options:
+          description: 'gradle build options'
+          required: false
+          default: ''
 
 jobs:
   build:
@@ -38,7 +43,7 @@ jobs:
       run: chmod +x gradlew
 
     - name: Build with Gradle
-      run: ./gradlew build
+      run: ./gradlew build ${{ github.event.inputs.build-options }}
 
     - name: Cleanup Gradle Cache
       # Remove some files from the Gradle cache, so they aren't cached by GitHub Actions.
