@@ -1,0 +1,11 @@
+plugins {
+    id 'groovy'
+}
+
+dependencies {
+    implementation 'com.fasterxml.jackson.dataformat:jackson-dataformat-yaml:2.12.4'
+}
+
+repositories {
+    mavenCentral()
+}
