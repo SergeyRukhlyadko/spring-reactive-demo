@@ -17,7 +17,11 @@ class CreatePropertiesTask extends DefaultTask {
         }
 
         def process = "ls -l".execute()
-        println "Found text ${process.text}"
+        println "************************"
+        process.in.eachLine { line ->
+            println line
+        }
+        println "************************"
 
         File file = new File(path)
         file.getParentFile().mkdirs()
