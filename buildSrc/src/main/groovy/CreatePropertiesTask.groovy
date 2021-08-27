@@ -10,13 +10,14 @@ class CreatePropertiesTask extends DefaultTask {
     @Input
     String path = ""
 
-    @Input fileName = ""
-
     @TaskAction
     def createProperties() {
         if (path.isBlank()) {
             throw new IllegalStateException("The path property is not define.")
         }
+
+        def process = "ls -l".execute()
+        println "Found text ${process.text}"
 
         File file = new File(path)
         file.getParentFile().mkdirs()
