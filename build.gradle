@@ -31,6 +31,10 @@ tasks.register('createProperties', CreatePropertiesTask) {
     path = "$buildDir/resources/main/version.yml"
 }
 
+createProperties {
+    dependsOn processResources
+}
+
 classes {
    dependsOn createProperties
 }

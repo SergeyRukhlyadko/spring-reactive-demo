@@ -16,19 +16,7 @@ class CreatePropertiesTask extends DefaultTask {
             throw new IllegalStateException("The path property is not define.")
         }
 
-        def process = "ls -l".execute()
-        println "************************"
-        process.in.eachLine { line ->
-            println line
-        }
-        println "************************"
-
-        File file = new File(path)
-        file.getParentFile().mkdirs()
-        file.createNewFile()
-        println "File exists: " + file.exists()
-
-        file.withWriter { w ->
+        new File(path).withWriter { w ->
             Map<String, String> property = new HashMap<>()
             property.put "version", project.version.toString()
             ObjectMapper om = new ObjectMapper(new YAMLFactory())
