@@ -1,5 +1,6 @@
 services:
   web:
+    image: cer1990/spring-reactive-demo:master
     ports:
       - 80:80
     working_dir: /app
