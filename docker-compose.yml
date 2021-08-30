@@ -1,5 +1,7 @@
 services:
   web:
+    depends_on:
+      - mongodb
     image: "cer1990/spring-reactive-demo:${TAG:?application tag is not define}"
     ports:
       - 80:80
