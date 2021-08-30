@@ -1,0 +1,9 @@
+{
+    "name": "Demo CI workflow",
+    "description": "Demo CI workflow template.",
+    "iconName": "free-icon",
+    "categories": [
+        "Java"
+    ],
+    "filePatterns": [ "^Dockerfile" ]
+}
