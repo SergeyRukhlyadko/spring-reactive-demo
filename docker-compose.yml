@@ -1,6 +1,6 @@
 services:
   web:
-    image: cer1990/spring-reactive-demo:master
+    image: "cer1990/spring-reactive-demo:${tag:?application tag is not define}"
     ports:
       - 80:80
     working_dir: /app
