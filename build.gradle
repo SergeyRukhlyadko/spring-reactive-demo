@@ -17,7 +17,11 @@ repositories {
 dependencies {
     implementation 'org.springframework.boot:spring-boot-starter-webflux'
     implementation 'org.springframework.boot:spring-boot-starter-data-mongodb-reactive'
-    testImplementation 'de.flapdoodle.embed:de.flapdoodle.embed.mongo'
+    if (project.hasProperty("mongo-embed")) {
+        implementation 'de.flapdoodle.embed:de.flapdoodle.embed.mongo'
+    } else {
+        testImplementation 'de.flapdoodle.embed:de.flapdoodle.embed.mongo'
+    }
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
     testImplementation 'io.projectreactor:reactor-test'
     testImplementation 'org.springframework.restdocs:spring-restdocs-webtestclient'
