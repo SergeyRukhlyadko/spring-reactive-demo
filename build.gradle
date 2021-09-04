@@ -5,6 +5,7 @@ plugins {
     id 'org.asciidoctor.jvm.convert' version '3.3.0'
     id 'io.freefair.lombok' version '6.0.0-m2'
     id 'jacoco'
+    id "org.sonarqube" version "3.3"
 }
 
 group = 'com.demo'
@@ -69,4 +70,12 @@ bootJar {
     from ("${asciidoctor.outputDir}") {
         into 'static/docs'
     }
+}
+
+sonarqube {
+  properties {
+    property "sonar.projectKey", "SergeyRukhlyadko_spring-reactive-demo"
+    property "sonar.organization", "sergeyrukhlyadko"
+    property "sonar.host.url", "https://sonarcloud.io"
+  }
 }
