@@ -8,9 +8,13 @@ import java.util.Properties;
 import org.springframework.beans.factory.config.YamlPropertiesFactoryBean;
 import org.springframework.core.env.PropertiesPropertySource;
 import org.springframework.core.env.PropertySource;
+import org.springframework.core.io.Resource;
 import org.springframework.core.io.support.DefaultPropertySourceFactory;
 import org.springframework.core.io.support.EncodedResource;
 
+import lombok.extern.slf4j.Slf4j;
+
+@Slf4j
 public class YamlPropertySourceFactory extends DefaultPropertySourceFactory {
 
     /**
@@ -25,17 +29,29 @@ public class YamlPropertySourceFactory extends DefaultPropertySourceFactory {
      */
     @Override
     public PropertySource<?> createPropertySource(String name, EncodedResource resource) throws IOException {
-        try {
+
+        Resource propertyResource = resource.getResource();
+
+        if (propertyResource.exists()) {
             YamlPropertiesFactoryBean factory = new YamlPropertiesFactoryBean();
-            factory.setResources(resource.getResource());
+            factory.setResources(propertyResource);
 
-            Properties properties = factory.getObject();
+            Properties properties = Optional.ofNullable(factory.getObject()).orElseThrow();
 
-            String propertySourceName =  Optional.ofNullable(name).orElse(resource.getResource().getFilename());
+            if (name == null || name.isBlank()) {
+                name = propertyResource.getFilename();
+                if (name == null || name.isBlank()) {
+                    throw new IllegalStateException(propertyResource.getDescription() + " file name does not exist");
+                }
+            }
 
-            return new PropertiesPropertySource(propertySourceName, properties);
-        } catch (IllegalStateException e) {
-            throw new FileNotFoundException(e.getMessage());
+            return new PropertiesPropertySource(name, properties);
+        } else {
+            if (log.isWarnEnabled()) {
+                log.warn("{} does not exist", propertyResource.getDescription());
+            }
+
+            throw new FileNotFoundException(propertyResource.getDescription() + " does not exist");
         }
     }
 }
