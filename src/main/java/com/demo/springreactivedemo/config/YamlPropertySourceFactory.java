@@ -2,6 +2,7 @@ package com.demo.springreactivedemo.config;
 
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.util.NoSuchElementException;
 import java.util.Optional;
 import java.util.Properties;
 
@@ -16,6 +17,18 @@ import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 public class YamlPropertySourceFactory extends DefaultPropertySourceFactory {
+
+    private YamlPropertiesFactoryBean factory;
+
+    public YamlPropertySourceFactory() {
+        factory = new YamlPropertiesFactoryBean();
+    }
+
+    public YamlPropertySourceFactory(YamlPropertiesFactoryBean factory) {
+        this.factory = Optional.ofNullable(factory).orElseThrow(
+            () -> new IllegalArgumentException("YamlPropertiesFactoryBean must not be null")
+        );
+    }
 
     /**
      * Create {@link org.springframework.core.env.PropertySource} from yaml configuration resourse.
@@ -33,15 +46,16 @@ public class YamlPropertySourceFactory extends DefaultPropertySourceFactory {
         Resource propertyResource = resource.getResource();
 
         if (propertyResource.exists()) {
-            YamlPropertiesFactoryBean factory = new YamlPropertiesFactoryBean();
             factory.setResources(propertyResource);
 
-            Properties properties = Optional.ofNullable(factory.getObject()).orElseThrow();
+            Properties properties = Optional.ofNullable(factory.getObject()).orElseThrow(
+                () -> new NoSuchElementException("Properties in YamlPropertiesFactoryBean is null")
+            );
 
             if (name == null || name.isBlank()) {
                 name = propertyResource.getFilename();
                 if (name == null || name.isBlank()) {
-                    throw new IllegalStateException(propertyResource.getDescription() + " file name does not exist");
+                    throw new IllegalStateException(propertyResource.getDescription() + ", file name does not exist");
                 }
             }
 
