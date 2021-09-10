@@ -1,7 +1,10 @@
 package com.demo.springreactivedemo.unit;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -11,19 +14,23 @@ import com.demo.springreactivedemo.config.YamlPropertySourceFactory;
 
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.function.Executable;
-import org.mockito.Mockito;
-import org.springframework.core.io.ClassPathResource;
-import org.springframework.core.io.support.EncodedResource;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.config.YamlPropertiesFactoryBean;
 import org.springframework.core.env.PropertySource;
+import org.springframework.core.io.ClassPathResource;
+import org.springframework.core.io.support.EncodedResource;
+
+import ch.qos.logback.classic.Logger;
+import ch.qos.logback.classic.spi.ILoggingEvent;
+import ch.qos.logback.core.read.ListAppender;
 
 class YamlPropertySourceFactoryTests {
 
+    YamlPropertySourceFactory defautlYamlPropertySourceFactory = new YamlPropertySourceFactory();
+
     @Test
     void PropertySourceCreated() throws IOException {
-        YamlPropertySourceFactory yamlPropertySourceFactory = new YamlPropertySourceFactory();
-
-        PropertySource<?> propertySource = yamlPropertySourceFactory.createPropertySource(
+        PropertySource<?> propertySource = defautlYamlPropertySourceFactory.createPropertySource(
             "version.yml",
             new EncodedResource(new ClassPathResource("version.yml"))
         );
@@ -35,9 +42,7 @@ class YamlPropertySourceFactoryTests {
 
     @Test
     void PropertySourceNotFound() throws IOException {
-        YamlPropertySourceFactory yamlPropertySourceFactory = new YamlPropertySourceFactory();
-
-        Executable executable = () -> yamlPropertySourceFactory.createPropertySource(
+        Executable executable = () -> defautlYamlPropertySourceFactory.createPropertySource(
             "version.yml",
             new EncodedResource(new ClassPathResource("property/not/exists/version.yml"))
         );
@@ -54,8 +59,8 @@ class YamlPropertySourceFactoryTests {
 
     @Test
     void PropertiesIsNull() throws IOException {
-        YamlPropertiesFactoryBean factory = Mockito.mock(YamlPropertiesFactoryBean.class);
-        Mockito.when(factory.getObject()).thenReturn(null);
+        YamlPropertiesFactoryBean factory = mock(YamlPropertiesFactoryBean.class);
+        when(factory.getObject()).thenReturn(null);
 
         YamlPropertySourceFactory yamlPropertySourceFactory = new YamlPropertySourceFactory(factory);
 
@@ -69,13 +74,47 @@ class YamlPropertySourceFactoryTests {
 
     @Test
     void PropertyNameIsEmpty() throws IOException {
-        YamlPropertySourceFactory yamlPropertySourceFactory = new YamlPropertySourceFactory();
-
-        Executable executable = () -> yamlPropertySourceFactory.createPropertySource(
+        Executable executable = () -> defautlYamlPropertySourceFactory.createPropertySource(
             "",
             new EncodedResource(new ClassPathResource(""))
         );
 
         assertThrows(IllegalStateException.class, executable);
+    }
+
+    @Test
+    void PropertyNameIsNull() throws IOException {
+        ClassPathResource classPathResource = mock(ClassPathResource.class);
+        when(classPathResource.exists()).thenReturn(true);
+        when(classPathResource.getFilename()).thenReturn(null);
+
+        Executable executable = () -> defautlYamlPropertySourceFactory.createPropertySource(
+            null,
+            new EncodedResource(classPathResource)
+        );
+
+        assertThrows(IllegalStateException.class, executable);
+    }
+
+    @Test
+    void FileNotFoundWarnLogging() throws IOException {
+        ListAppender<ILoggingEvent> appender = new ListAppender<>();
+        Logger testLogger = (Logger) LoggerFactory.getLogger(YamlPropertySourceFactory.class);
+        testLogger.addAppender(appender);
+        appender.start();
+
+        try {
+            defautlYamlPropertySourceFactory.createPropertySource(
+                "notexists.yml",
+                new EncodedResource(new ClassPathResource("notexists.yml"))
+            );
+        } catch(FileNotFoundException e) {}
+
+        assertThat(appender.list)
+            .extracting(ILoggingEvent::getFormattedMessage)
+            .containsExactly("class path resource [notexists.yml] does not exist");
+
+        appender.stop();
+        testLogger.detachAppender(appender);
     }
 }

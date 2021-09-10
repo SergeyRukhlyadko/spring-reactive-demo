@@ -46,18 +46,18 @@ public class YamlPropertySourceFactory extends DefaultPropertySourceFactory {
         Resource propertyResource = resource.getResource();
 
         if (propertyResource.exists()) {
-            factory.setResources(propertyResource);
-
-            Properties properties = Optional.ofNullable(factory.getObject()).orElseThrow(
-                () -> new NoSuchElementException("Properties in YamlPropertiesFactoryBean is null")
-            );
-
             if (name == null || name.isBlank()) {
                 name = propertyResource.getFilename();
                 if (name == null || name.isBlank()) {
                     throw new IllegalStateException(propertyResource.getDescription() + ", file name does not exist");
                 }
             }
+
+            factory.setResources(propertyResource);
+
+            Properties properties = Optional.ofNullable(factory.getObject()).orElseThrow(
+                () -> new NoSuchElementException("Properties in YamlPropertiesFactoryBean is null")
+            );
 
             return new PropertiesPropertySource(name, properties);
         } else {
